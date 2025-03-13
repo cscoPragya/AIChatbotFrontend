@@ -52,26 +52,34 @@ function HeroAnimation() {
       "-=1",
     )
 
-    // Add continuous balancing animation
-    gsap.to(".scale-arm", {
-      rotation: 5,
-      duration: 2,
-      yoyo: true,
+    // Add continuous balancing animation - IMPROVED FOR MORE REALISM
+    // Create a more natural, synchronized movement
+    const masterTimeline = gsap.timeline({
       repeat: -1,
+      yoyo: true,
       ease: "sine.inOut",
+    })
+
+    // The arm rotates slightly
+    masterTimeline.to(".scale-arm", {
+      rotation: 3, // Reduced rotation for more realism
+      duration: 2,
       transformOrigin: "center",
     })
 
+    // The pans move in opposite directions but with coordinated movement
+    // Left pan goes down when arm rotates clockwise
     gsap.to(".scale-left-pan", {
-      y: -8,
+      y: 5, // Reduced movement for more realism
       duration: 2,
       yoyo: true,
       repeat: -1,
       ease: "sine.inOut",
     })
 
+    // Right pan goes up when arm rotates clockwise
     gsap.to(".scale-right-pan", {
-      y: 8,
+      y: -5, // Reduced movement for more realism
       duration: 2,
       yoyo: true,
       repeat: -1,
@@ -90,6 +98,7 @@ function HeroAnimation() {
 
     return () => {
       tl.kill()
+      masterTimeline.kill()
     }
   }, [isDarkMode])
 
