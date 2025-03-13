@@ -821,14 +821,14 @@
   .chat-message {
     max-width: 90%;
   }
-  .logo{
+  .logo {
     /* background-color: #2563eb; */
     left: 0;
   }
- .header-actions{
-  /* background-color: #2563   */
-  padding: 0 10px;
- }
+  .header-actions {
+    /* background-color: #2563   */
+    padding: 0 10px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1837,6 +1837,25 @@
   /* Hide the original header actions only on home page */
   .home-container .header-actions {
     display: none;
+  }
+}
+
+/* Add this CSS to hide the Home button on mobile for Features and About pages */
+@media (max-width: 768px) {
+  .mobile-hide {
+    display: none !important;
+  }
+
+  /* Ensure the mobile menu button is always displayed on mobile */
+  .mobile-menu-button {
+    display: flex !important;
+  }
+
+  /* Make sure the header actions are properly displayed on all pages */
+  .chat-header .header-actions,
+  .about-page .header-actions,
+  .features-page .header-actions {
+    display: flex !important;
   }
 }
 

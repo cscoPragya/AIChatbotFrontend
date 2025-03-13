@@ -115,7 +115,7 @@ function FeaturesPage({ navigateTo }) {
           </ul>
         </nav>
         <div className="header-actions">
-          <button className="back-home-btn icon-only" onClick={() => navigateTo("home")} title="Home">
+          <button className="back-home-btn icon-only mobile-hide" onClick={() => navigateTo("home")} title="Home">
             <Home size={18} />
           </button>
           <ThemeToggle />

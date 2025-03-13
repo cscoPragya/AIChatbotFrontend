@@ -1,9 +1,9 @@
-"use client";
+"use client"
 
-import { Scale, Home, ArrowRight, Brain, FileSearch, Shield, Search, Zap } from "lucide-react";
-import ThemeToggle from "./ThemeToggle";
-import { useEffect } from "react";
-import gsap from "gsap";
+import { Scale, Home, ArrowRight, Brain, FileSearch, Shield, Search, Zap } from "lucide-react"
+import ThemeToggle from "./ThemeToggle"
+import { useEffect } from "react"
+import gsap from "gsap"
 
 function AboutPage({ navigateTo }) {
   useEffect(() => {
@@ -18,7 +18,7 @@ function AboutPage({ navigateTo }) {
         stagger: 0.2,
         ease: "power2.out",
       },
-    );
+    )
 
     // Animate icons
     gsap.fromTo(
@@ -32,8 +32,8 @@ function AboutPage({ navigateTo }) {
         ease: "back.out(1.7)",
         delay: 0.3,
       },
-    );
-  }, []);
+    )
+  }, [])
 
   return (
     <div className="about-page">
@@ -48,8 +48,8 @@ function AboutPage({ navigateTo }) {
               <a
                 href="#"
                 onClick={(e) => {
-                  e.preventDefault();
-                  navigateTo("features");
+                  e.preventDefault()
+                  navigateTo("features")
                 }}
               >
                 Features
@@ -59,8 +59,8 @@ function AboutPage({ navigateTo }) {
               <a
                 href="#"
                 onClick={(e) => {
-                  e.preventDefault();
-                  navigateTo("about");
+                  e.preventDefault()
+                  navigateTo("about")
                 }}
               >
                 About
@@ -70,8 +70,8 @@ function AboutPage({ navigateTo }) {
               <a
                 href="#"
                 onClick={(e) => {
-                  e.preventDefault();
-                  navigateTo("home");
+                  e.preventDefault()
+                  navigateTo("home")
                 }}
               >
                 Pricing
@@ -80,7 +80,7 @@ function AboutPage({ navigateTo }) {
           </ul>
         </nav>
         <div className="header-actions">
-          <button className="back-home-btn icon-only" onClick={() => navigateTo("home")} title="Home">
+          <button className="back-home-btn icon-only mobile-hide" onClick={() => navigateTo("home")} title="Home">
             <Home size={18} />
           </button>
           <ThemeToggle />
@@ -249,7 +249,8 @@ function AboutPage({ navigateTo }) {
         </div>
       </footer>
     </div>
-  );
+  )
 }
 
-export default AboutPage;
+export default AboutPage
+

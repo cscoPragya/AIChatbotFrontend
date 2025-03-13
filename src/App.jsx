@@ -70,23 +70,23 @@ function App() {
 
   // Fix the hamburger menu toggle functionality
   // Replace the useEffect for the mobile menu button with this improved version
-  useEffect(() => {
-    const handleMobileMenuToggle = () => {
-      setIsMobileMenuOpen(!isMobileMenuOpen)
-    }
+  // useEffect(() => {
+  //   const handleMobileMenuToggle = () => {
+  //     setIsMobileMenuOpen(!isMobileMenuOpen)
+  //   }
 
-    const mobileMenuButton = document.querySelector(".mobile-menu-button")
+  //   const mobileMenuButton = document.querySelector(".mobile-menu-button")
 
-    if (mobileMenuButton) {
-      mobileMenuButton.addEventListener("click", handleMobileMenuToggle)
-    }
+  //   if (mobileMenuButton) {
+  //     mobileMenuButton.addEventListener("click", handleMobileMenuToggle)
+  //   }
 
-    return () => {
-      if (mobileMenuButton) {
-        mobileMenuButton.removeEventListener("click", handleMobileMenuToggle)
-      }
-    }
-  }, [isMobileMenuOpen])
+  //   return () => {
+  //     if (mobileMenuButton) {
+  //       mobileMenuButton.removeEventListener("click", handleMobileMenuToggle)
+  //     }
+  //   }
+  // }, [isMobileMenuOpen])
 
   // Add this useEffect to handle mobile menu animation:
   useEffect(() => {
@@ -103,6 +103,13 @@ function App() {
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  // Find the navigateTo function and modify it to reset the mobile menu state when navigating
+  const navigateTo = (page) => {
+    setCurrentPage(page)
+    // Reset mobile menu state when navigating
+    setIsMobileMenuOpen(false)
   }
 
   const handleSubmit = (e) => {
@@ -148,10 +155,6 @@ function App() {
     } else {
       return "Thank you for your question. To provide accurate legal information, I'd need more specific details about your situation. Please note that I can provide general legal information, but this doesn't constitute legal advice."
     }
-  }
-
-  const navigateTo = (page) => {
-    setCurrentPage(page)
   }
 
   const handleDocumentUpload = () => {
@@ -367,7 +370,8 @@ function App() {
               </li>
             </ul>
           </nav>
-          <div className="mobile-menu-button">
+          {/* Replace the mobile menu button in renderHomePage with this version that uses the state directly */}
+          <div className="mobile-menu-button" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
             {isMobileMenuOpen ? <X size={24} className="menu-icon" /> : <Menu size={24} className="menu-icon" />}
           </div>
           <div className="header-actions">
