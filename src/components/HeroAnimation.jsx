@@ -7,16 +7,13 @@ function HeroAnimation() {
   const containerRef = useRef(null)
   const [isDarkMode, setIsDarkMode] = useState(false)
 
-  // Check for dark mode and set up a listener for changes
   useEffect(() => {
     const checkDarkMode = () => {
       setIsDarkMode(document.documentElement.classList.contains("dark"))
     }
 
-    // Initial check
     checkDarkMode()
 
-    // Set up a mutation observer to watch for class changes on the html element
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.attributeName === "class") {
@@ -33,62 +30,74 @@ function HeroAnimation() {
   useEffect(() => {
     if (!containerRef.current) return
 
+    // Initial appearance animation
     const tl = gsap.timeline()
 
-    // Animate the scale
-    tl.fromTo(".scale-base", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: "power3.out" })
+    // Fade in the hook first
+    tl.fromTo(".scale-hook", { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" })
 
+    // Then the arm
     tl.fromTo(
       ".scale-arm",
-      { rotation: -45, transformOrigin: "center" },
-      { rotation: 0, duration: 1.5, ease: "elastic.out(1, 0.5)" },
-      "-=0.5",
+      { rotation: -10, transformOrigin: "50% 0" },
+      { rotation: 90, duration: 1, ease: "elastic.out(1, 0.5)" },
+      "-=0.3",
     )
 
+    // Then the pans with a slight bounce
     tl.fromTo(
       [".scale-left-pan", ".scale-right-pan"],
-      { y: 50, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.8, stagger: 0.2, ease: "back.out(1.7)" },
+      { y: 10, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 1,
+        stagger: 0.2,
+        ease: "bounce.out",
+      },
       "-=1",
     )
 
-    // Add continuous balancing animation - IMPROVED FOR MORE REALISM
-    // Create a more natural, synchronized movement
-    const masterTimeline = gsap.timeline({
+    // Continuous subtle swaying animation
+    const swayTimeline = gsap.timeline({
       repeat: -1,
       yoyo: true,
       ease: "sine.inOut",
     })
 
-    // The arm rotates slightly
-    masterTimeline.to(".scale-arm", {
-      rotation: 3, // Reduced rotation for more realism
-      duration: 2,
-      transformOrigin: "center",
-    })
+    // Subtle arm rotation (reduced for balance)
+    swayTimeline
+      .to(".scale-arm", {
+        rotation: -1, // Minimal movement
+        duration: 2,
+        ease: "sine.inOut",
+      })
+      .to(".scale-arm", {
+        rotation: 1, // Balanced motion
+        duration: 2,
+        ease: "sine.inOut",
+      })
 
-    // The pans move in opposite directions but with coordinated movement
-    // Left pan goes down when arm rotates clockwise
+    // Pan animations - gentle movements
     gsap.to(".scale-left-pan", {
-      y: 5, // Reduced movement for more realism
+      y: "+=3",
       duration: 2,
-      yoyo: true,
       repeat: -1,
+      yoyo: true,
       ease: "sine.inOut",
     })
 
-    // Right pan goes up when arm rotates clockwise
     gsap.to(".scale-right-pan", {
-      y: -5, // Reduced movement for more realism
+      y: "-=3", // Reduced movement
       duration: 2,
-      yoyo: true,
       repeat: -1,
+      yoyo: true,
       ease: "sine.inOut",
     })
 
-    // Animate the glow effect
+    // Subtle glow animation
     gsap.to(".glow", {
-      opacity: isDarkMode ? 0.6 : 0.8,
+      opacity: isDarkMode ? 0.4 : 0.6,
       scale: 1.2,
       duration: 2,
       repeat: -1,
@@ -98,7 +107,7 @@ function HeroAnimation() {
 
     return () => {
       tl.kill()
-      masterTimeline.kill()
+      swayTimeline.kill()
     }
   }, [isDarkMode])
 
@@ -106,10 +115,11 @@ function HeroAnimation() {
     <div ref={containerRef} className="animation-container">
       <div className="weighing-scale">
         <div className={`glow ${isDarkMode ? "glow-dark" : "glow-light"}`}></div>
+        <div className="scale-hook"></div>
+        <div className="scale-arm"></div>
         <div className="scale-base">
           <div className="scale-stand"></div>
         </div>
-        <div className="scale-arm"></div>
         <div className="scale-left-pan">
           <div className="scale-pan-content">
             <div className="document-mini"></div>
@@ -126,4 +136,3 @@ function HeroAnimation() {
 }
 
 export default HeroAnimation
-

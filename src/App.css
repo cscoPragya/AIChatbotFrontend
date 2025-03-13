@@ -785,11 +785,29 @@
     flex-direction: column;
     padding: var(--spacing-xl) var(--spacing-lg);
     text-align: center;
+    /* background-color: red; */
+
+    
+  }
+  .hero-animation{
+    /* background-color: red; */
+    margin-bottom: 0;
+    padding: 0;
+    
   }
 
   .hero-content {
-    margin-bottom: var(--spacing-xl);
+   margin-top:15% ; 
+    position: relative;
+    /* background-color: pink; */
+   
+    left: 0;
   }
+  .hero-content p{
+    color: rgb(255, 255, 255);
+   
+  }
+  
 
   .hero-content h1 {
     font-size: var(--font-size-xxxl);
@@ -1592,4 +1610,160 @@
   }
 }
 
+
+
+/* Hero section animation updated code */
+
+.animation-container {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.weighing-scale {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  margin: 0 auto;
+}
+
+.scale-hook {
+  position: absolute;
+  width: 12px;
+  height: 25px;
+  background: #d4af37;
+  border-radius: 6px 6px 0 0;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+.dark .scale-hook {
+  background: #f0d080;
+  box-shadow: 0 0 15px rgba(240, 208, 128, 0.5);
+}
+
+.scale-arm {
+  position: absolute;
+  width: 200px;
+  height: 8px;
+  background: #d4af37;
+  top: 45px;
+  left: 50%;
+  transform: translateX(-50%);
+  transform-origin: 50% 0;
+  border-radius: 4px;
+  z-index: 1;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+.dark .scale-arm {
+  background: #f0d080;
+  box-shadow: 0 0 15px rgba(240, 208, 128, 0.5);
+}
+
+.scale-base {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  background: #2563eb;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 10px;
+  z-index: 1;
+}
+
+.dark .scale-base {
+  background: #3b82f6;
+}
+
+.scale-left-pan,
+.scale-right-pan {
+  position: absolute;
+  width: 80px;
+  height: 10px;
+  background: #d4af37;
+  top: 150px;
+  border-radius: 5px;
+  z-index: 1;
+}
+
+.dark .scale-left-pan,
+.dark .scale-right-pan {
+  background: #f0d080;
+  box-shadow: 0 0 15px rgba(240, 208, 128, 0.5);
+}
+
+.scale-left-pan {
+  left: calc(50% - 120px);
+}
+
+.scale-right-pan {
+  right: calc(50% - 120px);
+}
+
+.scale-pan-content {
+  position: absolute;
+  width: 100%;
+  height: 40px;
+  top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.document-mini,
+.gavel-mini {
+  width: 30px;
+  height: 30px;
+  background: #d4af37;
+  border-radius: 5px;
+}
+
+.dark .document-mini,
+.dark .gavel-mini {
+  background: #f0d080;
+}
+
+.glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  filter: blur(30px);
+  z-index: 0;
+}
+
+.glow-light {
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0) 70%);
+}
+
+.glow-dark {
+  background: radial-gradient(circle, rgba(240, 208, 128, 0.3) 0%, rgba(240, 208, 128, 0) 70%);
+}
+
+/* Add chains connecting the arm to the pans */
+.scale-left-pan::before,
+.scale-right-pan::before {
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 95px;
+  background: #d4af37;
+  top: -95px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.dark .scale-left-pan::before,
+.dark .scale-right-pan::before {
+  background: #f0d080;
+  box-shadow: 0 0 10px rgba(240, 208, 128, 0.3);
+}
 
