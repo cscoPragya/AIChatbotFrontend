@@ -68,21 +68,22 @@ function App() {
     }
   }, [isSidebarOpen, currentPage])
 
+  // Fix the hamburger menu toggle functionality
+  // Replace the useEffect for the mobile menu button with this improved version
   useEffect(() => {
-    const mobileMenuButton = document.querySelector(".mobile-menu-button")
-    const mobileMenu = document.querySelector(".mobile-menu")
+    const handleMobileMenuToggle = () => {
+      setIsMobileMenuOpen(!isMobileMenuOpen)
+    }
 
-    if (mobileMenuButton && mobileMenu) {
-      mobileMenuButton.addEventListener("click", () => {
-        setIsMobileMenuOpen(!isMobileMenuOpen)
-      })
+    const mobileMenuButton = document.querySelector(".mobile-menu-button")
+
+    if (mobileMenuButton) {
+      mobileMenuButton.addEventListener("click", handleMobileMenuToggle)
     }
 
     return () => {
       if (mobileMenuButton) {
-        mobileMenuButton.removeEventListener("click", () => {
-          setIsMobileMenuOpen(!isMobileMenuOpen)
-        })
+        mobileMenuButton.removeEventListener("click", handleMobileMenuToggle)
       }
     }
   }, [isMobileMenuOpen])
@@ -367,7 +368,7 @@ function App() {
             </ul>
           </nav>
           <div className="mobile-menu-button">
-            <Menu size={24} />
+            {isMobileMenuOpen ? <X size={24} className="menu-icon" /> : <Menu size={24} className="menu-icon" />}
           </div>
           <div className="header-actions">
             <ThemeToggle />
@@ -419,7 +420,6 @@ function App() {
                   href="#"
                   onClick={(e) => {
                     e.preventDefault()
-                    navigateTo("login")
                   }}
                 >
                   Login
@@ -535,10 +535,20 @@ function App() {
               <span>LegalAI</span>
             </div>
 
-            <div className="header-actions">
+            {/* Modify the renderChatPage function to update the Home button (remove text, keep icon only) */}
+            {/* Find this section in the renderChatPage function: */}
+            {/* <div className="header-actions">
               <button className="back-home-btn" onClick={() => navigateTo("home")}>
                 <Home size={18} />
                 <span>Home</span>
+              </button>
+              <ThemeToggle />
+            </div> */}
+
+            {/* And replace it with: */}
+            <div className="header-actions">
+              <button className="back-home-btn icon-only" onClick={() => navigateTo("home")} title="Home">
+                <Home size={18} />
               </button>
               <ThemeToggle />
             </div>

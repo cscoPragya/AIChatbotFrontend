@@ -115,11 +115,10 @@ function FeaturesPage({ navigateTo }) {
           </ul>
         </nav>
         <div className="header-actions">
-          <ThemeToggle />
-          <button onClick={() => navigateTo("home")} className="btn btn-outline">
-            <Home size={18} className="mr-2" />
-            Home
+          <button className="back-home-btn icon-only" onClick={() => navigateTo("home")} title="Home">
+            <Home size={18} />
           </button>
+          <ThemeToggle />
           <button onClick={() => navigateTo("chat")} className="btn btn-primary">
             Get Started
           </button>
@@ -310,7 +309,7 @@ function FeaturesPage({ navigateTo }) {
             <Scale className="logo-icon" />
             <span>LegalAI</span>
           </div>
-          <p>© 2025 LegalAI. All rights reserved.</p>
+          <p>© 2023 LegalAI. All rights reserved.</p>
           <p>
             <small>
               Disclaimer: LegalAI provides legal information, not legal advice. For specific legal advice, please
