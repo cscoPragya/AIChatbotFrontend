@@ -328,6 +328,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  position: relative; /* Added for proper positioning of particles */
 }
 
 .header {
@@ -413,6 +414,9 @@
   background-color: var(--color-primary);
   color: white;
 }
+.header-actions .btn-primary {
+  padding: 12px 22px;
+}
 
 .btn-primary:hover {
   background-color: var(--color-primary-light);
@@ -463,7 +467,9 @@
 .hero-content {
   max-width: 600px;
   position: relative;
-  left: 5%;
+  left: 9%;
+  /* background-color: pink; */
+  z-index: 1; /* Ensure content is above particles */
 }
 
 .hero-content h1 {
@@ -498,6 +504,8 @@
   align-items: center;
   max-width: 500px;
   overflow: hidden;
+  position: relative;
+  z-index: 1; /* Ensure animation is above particles */
 }
 
 /* Animation styles */
@@ -799,7 +807,11 @@
     left: 0;
   }
   .hero-content p {
-    color: rgb(255, 255, 255);
+    color: var(--color-gray-700); /* Ensure text is visible in both themes */
+  }
+
+  .dark .hero-content p {
+    color: var(--color-gray-400); /* Ensure text is visible in dark theme */
   }
 
   .hero-content h1 {
@@ -828,6 +840,27 @@
   .header-actions {
     /* background-color: #2563   */
     padding: 0 10px;
+    display: none; /* Hide on mobile */
+  }
+
+  .header-actions .btn-primary {
+    padding: 12px 22px;
+  }
+
+  /* Show mobile menu button */
+  .mobile-menu-button {
+    display: flex !important;
+  }
+
+  /* Add theme toggle to mobile menu */
+  .mobile-theme-toggle {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-md);
+  }
+
+  .mobile-theme-toggle .theme-toggle {
+    margin-right: var(--spacing-md);
   }
 }
 
@@ -912,6 +945,20 @@
   z-index: 2;
   max-width: 800px;
   margin: 0 auto;
+}
+.about-hero-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+.about-hero-content p {
+  text-align: center;
+}
+.about-hero-content button {
+  /* background-color: #2563eb; */
+
+  margin-top: 2%;
 }
 
 .about-hero h1,
@@ -1069,7 +1116,7 @@
 .features-footer {
   background-color: var(--color-gray-800);
   color: white;
-  padding: var(--spacing-xl);
+  padding: 10px 0;
   text-align: center;
 }
 .dark .about-footer,
@@ -1574,6 +1621,17 @@
   .template-list {
     grid-template-columns: 1fr;
   }
+
+  /* Make sure theme toggle is visible in mobile menu */
+  .mobile-theme-toggle {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
+
+  .mobile-theme-toggle .theme-toggle {
+    margin-right: var(--spacing-md);
+  }
 }
 
 @media (max-width: 480px) {
@@ -1857,5 +1915,35 @@
   .features-page .header-actions {
     display: flex !important;
   }
+}
+
+/* Glitter effect container styles */
+#glitter-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0; /* Ensure it's behind content but above background */
+  pointer-events: none; /* Allow clicks to pass through to elements below */
+  overflow: hidden;
+}
+
+/* Ensure the canvas created by particles.js has the right dimensions */
+#glitter-container canvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+/* Make sure content is positioned above the particles */
+.header,
+.hero-section,
+.main-nav,
+.header-actions,
+.hero-content,
+.hero-animation {
+  position: relative;
+  z-index: 1;
 }
 

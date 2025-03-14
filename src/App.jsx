@@ -29,9 +29,186 @@ function App() {
   const [input, setInput] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isDarkMode, setIsDarkMode] = useState(false)
 
   const messagesEndRef = useRef(null)
   const chatContainerRef = useRef(null)
+  const particlesContainerRef = useRef(null)
+
+  // Check theme on initial load
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains("dark")
+    setIsDarkMode(isDark)
+  }, [])
+
+  // Watch for theme changes
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === "class" && mutation.target === document.documentElement) {
+          const isDark = document.documentElement.classList.contains("dark")
+          setIsDarkMode(isDark)
+
+          // Reinitialize particles when theme changes
+          if (window.pJS && window.particlesJS) {
+            window.pJS.fn.vendors.destroypJS()
+            initializeParticles(isDark)
+          }
+        }
+      })
+    })
+
+    observer.observe(document.documentElement, { attributes: true })
+
+    return () => observer.disconnect()
+  }, [])
+
+  // Initialize particles.js
+  useEffect(() => {
+    if (currentPage === "home") {
+      loadParticlesJS()
+    }
+
+    return () => {
+      // Clean up particles when component unmounts
+      if (window.pJS && window.pJS.fn && window.pJS.fn.vendors) {
+        window.pJS.fn.vendors.destroypJS()
+      }
+    }
+  }, [currentPage])
+
+  // Load particles.js from CDN
+  const loadParticlesJS = () => {
+    if (window.particlesJS) {
+      initializeParticles(isDarkMode)
+      return
+    }
+
+    const script = document.createElement("script")
+    script.src = "https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"
+    script.async = true
+    script.onload = () => initializeParticles(isDarkMode)
+    document.body.appendChild(script)
+  }
+
+  // Initialize particles with the appropriate configuration
+  const initializeParticles = (isDark) => {
+    if (!window.particlesJS) return
+
+    // Create container if it doesn't exist
+    let container = document.getElementById("glitter-container")
+    if (!container) {
+      container = document.createElement("div")
+      container.id = "glitter-container"
+      container.style.position = "fixed"
+      container.style.top = "0"
+      container.style.left = "0"
+      container.style.width = "100%"
+      container.style.height = "100%"
+      container.style.zIndex = "0"
+      container.style.pointerEvents = "none"
+      container.style.overflow = "hidden"
+
+      // Insert at the beginning of the home container
+      const homeContainer = document.querySelector(".home-container")
+      if (homeContainer) {
+        homeContainer.prepend(container)
+      } else {
+        document.body.prepend(container)
+      }
+    }
+
+    // Configure particles
+    window.particlesJS("glitter-container", {
+      particles: {
+        number: {
+          value: 70, // Increased from 40 to 70
+          density: {
+            enable: true,
+            value_area: 900, // Increased area for better spread
+          },
+        },
+        color: {
+          value: isDark
+            ? ["#FFD700", "#FFC107", "#FFEB3B", "#F9A825"] // Brighter gold for dark mode
+            : ["#D4AF37", "#CFB53B", "#C5B358", "#B8860B"], // Darker gold for light mode
+        },
+        shape: {
+          type: "circle",
+          stroke: {
+            width: 0,
+            color: "#000000",
+          },
+        },
+        opacity: {
+          value: isDark ? 0.7 : 0.8, // Increased for more visibility
+          random: true,
+          anim: {
+            enable: true,
+            speed: 1.5, // Slightly faster opacity animation
+            opacity_min: 0.3,
+            sync: false,
+          },
+        },
+        size: {
+          value: 4.5, // Increased size for more glow
+          random: true,
+          anim: {
+            enable: true,
+            speed: 3, // Faster size animation for more shimmer effect
+            size_min: 1,
+            sync: false,
+          },
+        },
+        line_linked: {
+          enable: false,
+        },
+        move: {
+          enable: true,
+          speed: 2.5, // Increased movement speed slightly
+          direction: "none",
+          random: true,
+          straight: false,
+          out_mode: "out",
+          bounce: false,
+          attract: {
+            enable: false,
+            rotateX: 600,
+            rotateY: 1200,
+          },
+        },
+      },
+      interactivity: {
+        detect_on: "canvas",
+        events: {
+          onhover: {
+            enable: true,
+            mode: "bubble",
+          },
+          onclick: {
+            enable: true,
+            mode: "repulse",
+          },
+          resize: true,
+        },
+        modes: {
+          bubble: {
+            distance: 130, // Reduced distance for better clustering
+            size: 6, // Bigger size when hovered
+            duration: 2.5,
+            opacity: 1, // Full opacity on hover
+            speed: 3,
+          },
+          repulse: {
+            distance: 180, // Reduced repulse distance for a subtle effect
+            duration: 0.4,
+          },
+        },
+      },
+      retina_detect: true,
+    });
+    
+  }
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -68,26 +245,6 @@ function App() {
     }
   }, [isSidebarOpen, currentPage])
 
-  // Fix the hamburger menu toggle functionality
-  // Replace the useEffect for the mobile menu button with this improved version
-  // useEffect(() => {
-  //   const handleMobileMenuToggle = () => {
-  //     setIsMobileMenuOpen(!isMobileMenuOpen)
-  //   }
-
-  //   const mobileMenuButton = document.querySelector(".mobile-menu-button")
-
-  //   if (mobileMenuButton) {
-  //     mobileMenuButton.addEventListener("click", handleMobileMenuToggle)
-  //   }
-
-  //   return () => {
-  //     if (mobileMenuButton) {
-  //       mobileMenuButton.removeEventListener("click", handleMobileMenuToggle)
-  //     }
-  //   }
-  // }, [isMobileMenuOpen])
-
   // Add this useEffect to handle mobile menu animation:
   useEffect(() => {
     const mobileMenu = document.querySelector(".mobile-menu")
@@ -110,6 +267,18 @@ function App() {
     setCurrentPage(page)
     // Reset mobile menu state when navigating
     setIsMobileMenuOpen(false)
+
+    // Clean up particles when leaving home page
+    if (page !== "home" && window.pJS && window.pJS.fn && window.pJS.fn.vendors) {
+      window.pJS.fn.vendors.destroypJS()
+    }
+
+    // Initialize particles when going to home page
+    if (page === "home") {
+      setTimeout(() => {
+        loadParticlesJS()
+      }, 100)
+    }
   }
 
   const handleSubmit = (e) => {
@@ -328,6 +497,7 @@ function App() {
   const renderHomePage = () => {
     return (
       <div className="home-container">
+        {/* Particles container will be added here dynamically */}
         <header className="header">
           <div className="logo">
             <Scale className="logo-icon" />
@@ -370,11 +540,12 @@ function App() {
               </li>
             </ul>
           </nav>
-          {/* Replace the mobile menu button in renderHomePage with this version that uses the state directly */}
+          {/* Mobile menu button */}
           <div className="mobile-menu-button" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
             {isMobileMenuOpen ? <X size={24} className="menu-icon" /> : <Menu size={24} className="menu-icon" />}
           </div>
           <div className="header-actions">
+            {/* Add ThemeToggle to header-actions */}
             <ThemeToggle />
             <button onClick={() => navigateTo("login")} className="btn btn-outline">
               Login
@@ -419,6 +590,11 @@ function App() {
                 </a>
               </li>
               <li className="mobile-menu-divider"></li>
+              {/* Add ThemeToggle to mobile menu */}
+              <li className="mobile-theme-toggle">
+                <ThemeToggle />
+                <span>Toggle Theme</span>
+              </li>
               <li>
                 <a
                   href="#"
@@ -539,17 +715,6 @@ function App() {
               <span>LegalAI</span>
             </div>
 
-            {/* Modify the renderChatPage function to update the Home button (remove text, keep icon only) */}
-            {/* Find this section in the renderChatPage function: */}
-            {/* <div className="header-actions">
-              <button className="back-home-btn" onClick={() => navigateTo("home")}>
-                <Home size={18} />
-                <span>Home</span>
-              </button>
-              <ThemeToggle />
-            </div> */}
-
-            {/* And replace it with: */}
             <div className="header-actions">
               <button className="back-home-btn icon-only" onClick={() => navigateTo("home")} title="Home">
                 <Home size={18} />

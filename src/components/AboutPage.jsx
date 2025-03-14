@@ -122,7 +122,9 @@ function AboutPage({ navigateTo }) {
                 </p>
               </div>
               <div className="image-placeholder">
-                <div className="team-image"></div>
+                <div className="team-image">
+                  <img src="" alt="hamari image"></img>
+                </div>
               </div>
             </div>
           </div>
