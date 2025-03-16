@@ -122,7 +122,7 @@ function App() {
     window.particlesJS("glitter-container", {
       particles: {
         number: {
-          value: 70, // Increased from 40 to 70
+          value: 90, // Increased from 40 to 70
           density: {
             enable: true,
             value_area: 900, // Increased area for better spread

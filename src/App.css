@@ -519,6 +519,8 @@
 }
 
 /* Weighing Scale Animation */
+/* current editing */
+
 .weighing-scale {
   position: relative;
   width: 300px;
@@ -657,6 +659,7 @@
   background-color: var(--color-primary);
   border-radius: 2px;
 }
+
 
 /* Login page styles */
 .login-container {
