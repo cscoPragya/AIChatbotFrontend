@@ -292,7 +292,7 @@ function FeaturesPage({ navigateTo }) {
             <h2>Ready to Experience LegalAI?</h2>
             <p>Start using our AI-powered legal assistant today and simplify your legal processes</p>
             <div className="cta-buttons">
-              <button onClick={() => navigateTo("chat")} className="btn btn-cta">
+              <button onClick={() => navigateTo("signup")} className="btn btn-cta">
                 Try It Now
               </button>
               <button onClick={() => navigateTo("about")} className="btn btn-outline">

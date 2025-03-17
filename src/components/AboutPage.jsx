@@ -98,7 +98,7 @@ function AboutPage({ navigateTo }) {
               Our mission is to democratize legal assistance through cutting-edge artificial intelligence, making legal
               guidance accessible, affordable, and understandable for everyone.
             </p>
-            <button onClick={() => navigateTo("chat")} className="btn btn-cta mt-6">
+            <button onClick={() => navigateTo("signup")} className="btn btn-cta mt-6">
               Experience LegalAI <ArrowRight className="ml-2" size={18} />
             </button>
           </div>

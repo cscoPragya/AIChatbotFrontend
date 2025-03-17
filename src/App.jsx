@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import { Scale, Menu, Send, X, Home, FileText, Mic, Plus } from "lucide-react"
+// import {useNavigate} from "react-router-dom";
 import gsap from "gsap"
 import "./App.css"
 import HeroAnimation from "./components/HeroAnimation"
@@ -30,6 +31,83 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
+
+  //state and handle submit function for login page
+  const [loginFormData,setLoginFormData]=useState({
+    email:"",
+    password:""
+  });
+
+  const [signupFormData,setSignupFormData]=useState({
+    email:"",
+    password:"",
+    username:"",
+  });
+
+  const [errorMessage,setErrorMessage]=useState("");
+  var handleLoginSubmit = async (e) => {
+    e.preventDefault();
+  
+    try {
+      const response = await fetch("http://localhost:8080/api/public/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(loginFormData),
+      });
+  
+      const data = await response.text();
+  
+      // ✅ Proper error handling
+      if (!response.ok) {
+        setErrorMessage("Invalid username or password!");
+      }else{
+
+
+        console.log(data);
+      setLoginFormData({ email: "", password: "" });
+  
+      
+      // localStorage.setItem("token", data.token);  // agar backend token bhej raha ho
+  
+      navigateTo("chat");
+      }
+  
+      
+    } catch (error) {
+      setErrorMessage(error.message)
+      console.log("Error:", error.message);
+      alert("Login failed: " + error.message); 
+    }
+  };
+  
+  var handleSignupFormSubmit= async(e)=>{
+e.preventDefault()
+try{
+const response= await fetch("http://localhost:8080/api/public/signup",{
+  method:"POST",
+  headers:{
+    "Content-Type":"application/json",
+  },
+  body:JSON.stringify(signupFormData)
+})
+
+const data= await response.text();
+if(response.ok){
+  console.log( data);
+  setSignupFormData({username:"",email:"",password:""})
+  //yha ham home page oe babus jayenge
+}else{
+  console.log("Signup failed!")
+}
+
+}catch(error){
+console.log(error)
+}
+
+
+  }
 
   const messagesEndRef = useRef(null)
   const chatContainerRef = useRef(null)
@@ -206,8 +284,7 @@ function App() {
         },
       },
       retina_detect: true,
-    });
-    
+    })
   }
 
   // Scroll to bottom when messages change
@@ -550,6 +627,9 @@ function App() {
             <button onClick={() => navigateTo("login")} className="btn btn-outline">
               Login
             </button>
+            <button onClick={() => navigateTo("signup")} className="btn btn-outline btn-signup">
+              Sign Up
+            </button>
             <button onClick={() => navigateTo("chat")} className="btn btn-primary">
               Get Started
             </button>
@@ -600,6 +680,7 @@ function App() {
                   href="#"
                   onClick={(e) => {
                     e.preventDefault()
+                    navigateTo("login")
                   }}
                 >
                   Login
@@ -610,7 +691,18 @@ function App() {
                   href="#"
                   onClick={(e) => {
                     e.preventDefault()
-                    navigateTo("chat")
+                    navigateTo("signup")
+                  }}
+                >
+                  Sign Up
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    navigateTo("signup")
                   }}
                 >
                   Get Started
@@ -629,7 +721,7 @@ function App() {
                 Access professional legal advice instantly through our advanced AI system. Save time and money on
                 routine legal questions.
               </p>
-              <button onClick={() => navigateTo("chat")} className="btn btn-cta">
+              <button onClick={() => navigateTo("signup")} className="btn btn-cta">
                 Chat Now
               </button>
             </div>
@@ -644,6 +736,14 @@ function App() {
 
   // Render the login page
   const renderLoginPage = () => {
+
+
+
+//     //logic to send the data to dababase
+// const handleSubmit=(e)=>{
+//   console.log(e);
+// }
+
     return (
       <div className="login-container">
         <div className="login-card">
@@ -661,21 +761,24 @@ function App() {
           <h2>Welcome Back</h2>
           <p className="login-subtitle">Sign in to your account</p>
 
-          <form className="login-form">
+          <form className="login-form" onSubmit={(e)=>{handleLoginSubmit(e)}}>
             <div className="form-group">
               <label htmlFor="email">Email</label>
-              <input type="email" id="email" placeholder="your@email.com" />
+              <input type="email" id="email" name="email" value={loginFormData.email} placeholder="your@email.com" onChange={(e)=>{setLoginFormData({...loginFormData,[e.target.name]:e.target.value})}} />
             </div>
 
             <div className="form-group">
               <label htmlFor="password">Password</label>
-              <input type="password" id="password" placeholder="••••••••" />
+              <input type="password" id="password" placeholder="••••••••" name="password" value={loginFormData.password} onChange={(e)=>{
+                setLoginFormData({...loginFormData,[e.target.name]:e.target.value})
+
+              }} />
               <div className="forgot-password">
                 <a href="#">Forgot password?</a>
               </div>
             </div>
-
-            <button type="button" className="btn btn-primary login-btn" onClick={() => navigateTo("chat")}>
+            {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+            <button type="submit" className="btn btn-primary login-btn">
               Sign In
             </button>
           </form>
@@ -687,9 +790,75 @@ function App() {
                 href="#"
                 onClick={(e) => {
                   e.preventDefault()
+                  navigateTo("signup")
                 }}
               >
                 Sign up
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Add a renderSignupPage function after the renderLoginPage function
+  const renderSignupPage = () => {
+    return (
+      <div className="login-container">
+        <div className="login-card">
+          <div className="login-header">
+            <button className="back-button" onClick={() => navigateTo("home")}>
+              <Home size={20} />
+              <span>Back to Home</span>
+            </button>
+            <div className="logo">
+              <Scale className="logo-icon" />
+              <span>LegalAI</span>
+            </div>
+          </div>
+
+          <h2>Create Account</h2>
+          <p className="login-subtitle">Sign up for a new account</p>
+
+          <form className="login-form">
+            <div className="form-group">
+              <label htmlFor="name">Full Name</label>
+              <input type="text" id="name" placeholder="username" name="username" value={signupFormData.username} onChange={(e)=>{setSignupFormData({...signupFormData,[e.target.name]:e.target.value})}}/>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="email">Email</label>
+              <input type="email" id="email" placeholder="your@email.com" name="email" value={signupFormData.email} onChange={(e)=>{setSignupFormData({...signupFormData,[e.target.name]:e.target.value})}} />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <input type="password" id="password" placeholder="••••••••" name="password" value={signupFormData.password} onChange={(e)=>{setSignupFormData({...signupFormData,[e.target.name]:e.target.value})}}/>
+            </div>
+
+            {/* <div className="form-group">
+              <label htmlFor="confirm-password">Confirm Password</label>
+              <input type="password"  id="confirm-password" placeholder="••••••••" name="confirmPassword" value={signupFormData.confirmPassword}
+              onChange={(e)=>{setSignupFormData({...signupFormData,[e.target.name]:e.target.value})}}/>
+            </div> */}
+
+            <button type="submit" className="btn btn-primary login-btn" onClick={handleSignupFormSubmit}>
+              Create Account
+            </button>
+          </form>
+
+          <div className="login-footer">
+            <p>
+              Already have an account?{" "}
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  navigateTo("login")
+                }}
+              >
+                Sign in
               </a>
             </p>
           </div>
@@ -813,8 +982,7 @@ function App() {
                   </button>
                   <button
                     className={selectedCategory === "legal" ? "active" : ""}
-                    onClick={() => setSelectedCategory("legal")}
-                  >
+                    onClick={() => setSelectedCategory("legal")}>
                     Legal Forms
                   </button>
                   <button
@@ -844,6 +1012,7 @@ function App() {
     <div className="app">
       {currentPage === "home" && renderHomePage()}
       {currentPage === "login" && renderLoginPage()}
+      {currentPage === "signup" && renderSignupPage()}
       {currentPage === "chat" && renderChatPage()}
       {currentPage === "about" && <AboutPage navigateTo={navigateTo} />}
       {currentPage === "features" && <FeaturesPage navigateTo={navigateTo} />}
