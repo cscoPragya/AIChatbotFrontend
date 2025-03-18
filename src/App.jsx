@@ -11,6 +11,8 @@ import Sidebar from "./components/Sidebar"
 import ThemeToggle from "./components/ThemeToggle"
 import AboutPage from "./components/AboutPage"
 import FeaturesPage from "./components/FeaturesPage"
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -45,6 +47,10 @@ function App() {
   });
 
   const [errorMessage,setErrorMessage]=useState("");
+  //yha signup ke custom erros messages ke liye state create karni hai!!!!
+  const [passwordError,setPasswordError]=useState("")
+  const [emailError, setEmailError]=useState("")
+  const [usernameError,setUsernameError]=useState("")
   var handleLoginSubmit = async (e) => {
     e.preventDefault();
   
@@ -59,7 +65,7 @@ function App() {
   
       const data = await response.text();
   
-      // ✅ Proper error handling
+      // Proper error handling
       if (!response.ok) {
         setErrorMessage("Invalid username or password!");
       }else{
@@ -82,32 +88,69 @@ function App() {
     }
   };
   
-  var handleSignupFormSubmit= async(e)=>{
+var handleSignupFormSubmit= async(e)=>{
+ 
+
 e.preventDefault()
-try{
-const response= await fetch("http://localhost:8080/api/public/signup",{
-  method:"POST",
-  headers:{
-    "Content-Type":"application/json",
-  },
-  body:JSON.stringify(signupFormData)
-})
 
-const data= await response.text();
-if(response.ok){
-  console.log( data);
-  setSignupFormData({username:"",email:"",password:""})
-  //yha ham home page oe babus jayenge
-}else{
-  console.log("Signup failed!")
+const response = await fetch("http://localhost:8080/api/public/signup", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(signupFormData)
+});
+
+let data;
+try {
+  data = await response.json();
+} catch (error) {
+  toast.error("Something went wrong!", {
+    position: "top-center",
+    autoClose: 3000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    theme: "colored",
+  });
+
+
+
+  console.log("Response is not JSON:", error);
+  data = { message: "Invalid response from server" };
 }
 
-}catch(error){
-console.log(error)
-}
+if (response.ok) {
+  console.log(data.message); //  JSON Message
+setPasswordError("")
+setEmailError("")
+setUsernameError("")
+  toast.success("Signup Successful!", {
+    position: "top-center",
+    autoClose: 3000, // 3 sec me khatam ho jayega
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    theme: "colored",
+  });
 
 
+  setSignupFormData({ username: "", email: "", password: "" });
+} else {
+  console.log("Signup failed!", data);
+  if((data.password)){
+    setPasswordError(data.password)
   }
+   if((data.username)){
+    setUsernameError(data.userMessage)}
+  if((data.email)){
+    setEmailError(data.email)
+  }
+
+}
+
+  
+}
 
   const messagesEndRef = useRef(null)
   const chatContainerRef = useRef(null)
@@ -806,6 +849,8 @@ console.log(error)
   const renderSignupPage = () => {
     return (
       <div className="login-container">
+
+<ToastContainer />
         <div className="login-card">
           <div className="login-header">
             <button className="back-button" onClick={() => navigateTo("home")}>
@@ -826,17 +871,17 @@ console.log(error)
               <label htmlFor="name">Full Name</label>
               <input type="text" id="name" placeholder="username" name="username" value={signupFormData.username} onChange={(e)=>{setSignupFormData({...signupFormData,[e.target.name]:e.target.value})}}/>
             </div>
-
+{usernameError && <p style={{color:"red"}}>{usernameError}.</p>}
             <div className="form-group">
               <label htmlFor="email">Email</label>
               <input type="email" id="email" placeholder="your@email.com" name="email" value={signupFormData.email} onChange={(e)=>{setSignupFormData({...signupFormData,[e.target.name]:e.target.value})}} />
             </div>
-
+{emailError && <p style={{color:"red"}}>{emailError}.</p>}
             <div className="form-group">
               <label htmlFor="password">Password</label>
               <input type="password" id="password" placeholder="••••••••" name="password" value={signupFormData.password} onChange={(e)=>{setSignupFormData({...signupFormData,[e.target.name]:e.target.value})}}/>
             </div>
-
+            {passwordError && <p style={{color:"red"}}>{passwordError}.</p>}
             {/* <div className="form-group">
               <label htmlFor="confirm-password">Confirm Password</label>
               <input type="password"  id="confirm-password" placeholder="••••••••" name="confirmPassword" value={signupFormData.confirmPassword}
