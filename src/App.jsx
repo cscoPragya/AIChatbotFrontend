@@ -51,6 +51,7 @@ function App() {
   const [passwordError,setPasswordError]=useState("")
   const [emailError, setEmailError]=useState("")
   const [usernameError,setUsernameError]=useState("")
+  const [userAlreadyExists, setExistence]=useState("");
   var handleLoginSubmit = async (e) => {
     e.preventDefault();
   
@@ -124,6 +125,7 @@ if (response.ok) {
 setPasswordError("")
 setEmailError("")
 setUsernameError("")
+setExistence(false)
   toast.success("Signup Successful!", {
     position: "top-center",
     autoClose: 3000, // 3 sec me khatam ho jayega
@@ -145,6 +147,9 @@ setUsernameError("")
     setUsernameError(data.userMessage)}
   if((data.email)){
     setEmailError(data.email)
+  }
+  if(data.message){
+    setExistence(data.message)
   }
 
 }
@@ -887,7 +892,7 @@ setUsernameError("")
               <input type="password"  id="confirm-password" placeholder="••••••••" name="confirmPassword" value={signupFormData.confirmPassword}
               onChange={(e)=>{setSignupFormData({...signupFormData,[e.target.name]:e.target.value})}}/>
             </div> */}
-
+{userAlreadyExists && <p style={{color:"red"}}>{userAlreadyExists}</p>}
             <button type="submit" className="btn btn-primary login-btn" onClick={handleSignupFormSubmit}>
               Create Account
             </button>
