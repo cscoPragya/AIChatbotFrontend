@@ -678,7 +678,7 @@ setExistence(false)
             <button onClick={() => navigateTo("signup")} className="btn btn-outline btn-signup">
               Sign Up
             </button>
-            <button onClick={() => navigateTo("chat")} className="btn btn-primary">
+            <button onClick={() => navigateTo("signup")} className="btn btn-primary">
               Get Started
             </button>
           </div>

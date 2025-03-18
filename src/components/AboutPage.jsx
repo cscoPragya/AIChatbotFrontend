@@ -84,7 +84,7 @@ function AboutPage({ navigateTo }) {
             <Home size={18} />
           </button>
           <ThemeToggle />
-          <button onClick={() => navigateTo("chat")} className="btn btn-primary">
+          <button onClick={() => navigateTo("signup")} className="btn btn-primary">
             Get Started
           </button>
         </div>
