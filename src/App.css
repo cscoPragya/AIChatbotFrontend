@@ -2027,15 +2027,28 @@ position: relative;
   transform: translateY(-50%);
   width: 40px;
   height: 120px;
-  background: rgba(255, 255, 255, 0.1);
+  background: #2A2A2A;
   backdrop-filter: blur(8px);
   border-radius: 0 10px 10px 0;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: width 0.3s ease-in-out;
+  transition: width 0.3s ease-in-out, background 0.3s ease-in-out;
   overflow: hidden;
+  color: white;
+}
+
+/* Adjust for Light Mode */
+/* .light .SideBar2 {
+  background: rgba(0, 0, 0, 0.1); /* Darker background for light theme */
+  /* color: white;
+} */ */
+
+/* Adjust for Dark Mode */
+ .SideBar2 {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
 }
 
 .SideBar2:hover {
@@ -2048,30 +2061,38 @@ position: relative;
   opacity: 0;
   transition: opacity 0.3s ease-in-out;
   padding: 10px;
-  color: white;
   font-size: 14px;
   font-weight: bold;
   text-align: center;
 }
 
+/* Light Mode - Text Color */
+body.light .SideBar2-content {
+  color: white;
+}
+
+/* Dark Mode - Text Color */
+body.dark .SideBar2-content {
+  color: white;
+}
+
+ .SideBar2-content span{
+  color: #2563eb;
+}
 .SideBar2:hover .SideBar2-content {
   opacity: 1;
 }
 
-/* Arrow Hidden on Hover */
+/* Hide Arrow on Hover */
 .SideBar2-arrow {
   position: absolute;
-  color: white;
+  color: inherit; /* Inherit theme color */
   font-size: 18px;
-  transition: opacity 0.3s ease-in-out;
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
 }
 
 .SideBar2:hover .SideBar2-arrow {
-  opacity: 0; /* 👈 Arrow Hidden */
-}
-
-.SideBar2 span {
-  color: #ffcc00;
+  opacity: 0; /* Hide arrow on hover */
 }
 
 /* Mobile Me Hide Karna */
