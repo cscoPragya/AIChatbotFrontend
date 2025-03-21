@@ -13,6 +13,7 @@ import AboutPage from "./components/AboutPage"
 import FeaturesPage from "./components/FeaturesPage"
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import SideBar2 from "./components/SideBar2"
 
 function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -761,7 +762,10 @@ setExistence(false)
         </header>
 
         <main>
+
+         
           <section className="hero-section">
+          <SideBar2/>
             <div className="hero-content">
               <h1>Your AI-Powered Legal Assistant</h1>
               <h2>Get Instant Legal Guidance</h2>
@@ -920,141 +924,8 @@ setExistence(false)
   // Render the chat page
   const renderChatPage = () => {
     return (
-      <div className="chat-page">
-        <Sidebar isOpen={isSidebarOpen} />
 
-        <div className="chat-container" ref={chatContainerRef}>
-          <header className="chat-header">
-            <button className="sidebar-toggle" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-              {isSidebarOpen ? <X /> : <Menu />}
-            </button>
-
-            <div className="logo">
-              <Scale className="logo-icon" />
-              <span>LegalAI</span>
-            </div>
-
-            <div className="header-actions">
-              <button className="back-home-btn icon-only" onClick={() => navigateTo("home")} title="Home">
-                <Home size={18} />
-              </button>
-              <ThemeToggle />
-            </div>
-          </header>
-
-          <div className="messages-container">
-            {messages.map((message) => (
-              <ChatMessage
-                key={message.id}
-                content={message.content}
-                role={message.role}
-                timestamp={message.timestamp}
-              />
-            ))}
-
-            {isProcessing && (
-              <div className="typing-indicator">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-            )}
-
-            <div ref={messagesEndRef} />
-          </div>
-
-          <form className="chat-input-form" onSubmit={handleSubmit}>
-            <div className="chat-actions">
-              <button
-                type="button"
-                className="action-button upload-button"
-                onClick={handleDocumentUpload}
-                title="Upload Document"
-              >
-                <FileText size={18} />
-              </button>
-              <button
-                type="button"
-                className={`action-button speak-button ${isListening ? "listening" : ""}`}
-                onClick={toggleSpeechRecognition}
-                title="Speak"
-              >
-                <Mic size={18} />
-                {isListening && <span className="pulse-ring"></span>}
-              </button>
-              <button
-                type="button"
-                className="action-button template-button"
-                onClick={() => setShowTemplateModal(true)}
-                title="Get Document Template"
-              >
-                <FileText size={18} />
-                <Plus size={12} className="plus-icon" />
-              </button>
-            </div>
-            <div className="input-container">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Type your legal question here..."
-                disabled={isProcessing || isListening}
-              />
-              <button type="submit" className="send-button" disabled={!input.trim() || isProcessing}>
-                <Send />
-              </button>
-            </div>
-          </form>
-        </div>
-        <input
-          type="file"
-          id="document-upload"
-          accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
-          style={{ display: "none" }}
-          onChange={handleFileSelected}
-        />
-        {showTemplateModal && (
-          <div className="template-modal-overlay" onClick={() => setShowTemplateModal(false)}>
-            <div className="template-modal" onClick={(e) => e.stopPropagation()}>
-              <div className="template-modal-header">
-                <h3>Select Document Template</h3>
-                <button className="close-button" onClick={() => setShowTemplateModal(false)}>
-                  <X size={18} />
-                </button>
-              </div>
-              <div className="template-modal-content">
-                <div className="template-categories">
-                  <button
-                    className={selectedCategory === "contracts" ? "active" : ""}
-                    onClick={() => setSelectedCategory("contracts")}
-                  >
-                    Contracts
-                  </button>
-                  <button
-                    className={selectedCategory === "legal" ? "active" : ""}
-                    onClick={() => setSelectedCategory("legal")}>
-                    Legal Forms
-                  </button>
-                  <button
-                    className={selectedCategory === "business" ? "active" : ""}
-                    onClick={() => setSelectedCategory("business")}
-                  >
-                    Business
-                  </button>
-                </div>
-                <div className="template-list">
-                  {getTemplatesByCategory(selectedCategory).map((template, index) => (
-                    <div key={index} className="template-item" onClick={() => selectTemplate(template)}>
-                      <FileText size={18} />
-                      <span>{template.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      <ChatMessage/>
     )
   }
 

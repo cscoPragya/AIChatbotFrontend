@@ -92,6 +92,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
+  background-color: #2563eb;
 }
 
 .chat-message {
@@ -2014,5 +2015,68 @@ position: relative;
   .hero-image {
     max-height: 50vh;
     width: 90%; /* Mobile me image adjust ho jaye */
+  }
+}
+
+
+/* //for custom credit */
+.SideBar2 {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 120px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  border-radius: 0 10px 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: width 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+.SideBar2:hover {
+  width: 80px;
+}
+
+.SideBar2-content {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  padding: 10px;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.SideBar2:hover .SideBar2-content {
+  opacity: 1;
+}
+
+/* Arrow Hidden on Hover */
+.SideBar2-arrow {
+  position: absolute;
+  color: white;
+  font-size: 18px;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.SideBar2:hover .SideBar2-arrow {
+  opacity: 0; /* 👈 Arrow Hidden */
+}
+
+.SideBar2 span {
+  color: #ffcc00;
+}
+
+/* Mobile Me Hide Karna */
+@media (max-width: 768px) {
+  .SideBar2 {
+    display: none;
   }
 }
