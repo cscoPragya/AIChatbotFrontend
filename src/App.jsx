@@ -53,6 +53,22 @@ function App() {
   const [emailError, setEmailError]=useState("")
   const [usernameError,setUsernameError]=useState("")
   const [userAlreadyExists, setExistence]=useState("");
+
+//gotta have to write the login so when user refresh the page so it shouldn't go to the main landing page again instead, we would first check whether the user has jwt token in his localstorage and then we would redirect it again to the chat page
+//par yha par main problem ye hai ki jo chat user kar rha hoga bo remain rehni chahiye, to uske liye ham ek user state ka use karenge aur use user ki har query ko store karne ke liye use karenge, aur jab user query ko send kar dega to ham bo query db me store karenge api ke response ke sath, aur jab page reload ya fir refresh hoga to ham bo sab jwt token ki madad se fetch karenge db se aur usko bapus load karenge
+//ye kam rehne bala hai agar ham user ko refresh ya reload ke bad bhi login rakhn chate hai to, cause react aur backend me abhi filhal koi connection nahi hai jwt ko lekar, bas filal itna kar rahi hu ki agar page refresh ho bhi to bhi chat page par hi rahe agar uske pas jwt token hai, chats fetch aur load tab hongi jab chatting mechanism implement hoga.
+//now this would let user logged in even after the page refresh
+
+useEffect(()=>{
+    const userToken= localStorage.getItem("token")
+    console.log(userToken)
+    if(userToken!=null){
+      navigateTo("chat")
+    }
+},[])
+
+
+
   var handleLoginSubmit = async (e) => {
     e.preventDefault();
   
@@ -74,6 +90,7 @@ function App() {
 
 
         console.log(data);
+        localStorage.setItem("token",data);
       setLoginFormData({ email: "", password: "" });
   
       
@@ -407,51 +424,61 @@ setExistence(false)
     }
   }
 
-  const handleSubmit = (e) => {
+  //Actually getting responses from backend
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!input.trim() || isProcessing) return
-
-    // Add user message
+  
     const userMessage = {
       id: Date.now().toString(),
       content: input,
       role: "user",
       timestamp: new Date(),
     }
-
+  
     setMessages((prev) => [...prev, userMessage])
     setInput("")
     setIsProcessing(true)
-
-    // Simulate AI response after a delay
-    setTimeout(() => {
+  
+    try {
+      const res = await fetch("http://localhost:8080/api/chat/user1", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: input }), // sending input to backend
+      })
+  
+      const data = await res.text()
+  console.log(data)
+  
       const aiResponse = {
         id: (Date.now() + 1).toString(),
-        content: getAIResponse(input),
+        content: data, // assuming backend sends { response: "..." }
         role: "assistant",
         timestamp: new Date(),
       }
-
+  
       setMessages((prev) => [...prev, aiResponse])
+    } catch (error) {
+      console.error("Error while fetching AI response:", error)
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          content: "Sorry, I couldn't fetch a response right now.",
+          role: "assistant",
+          timestamp: new Date(),
+        },
+      ])
+    } finally {
       setIsProcessing(false)
-    }, 1500)
-  }
-
-  // Simple mock AI response function
-  const getAIResponse = (userInput) => {
-    const input = userInput.toLowerCase()
-
-    if (input.includes("contract") || input.includes("agreement")) {
-      return "Contracts typically require offer, acceptance, consideration, and legal purpose to be valid. I'd need more specific details about your contract situation to provide tailored guidance."
-    } else if (input.includes("lawsuit") || input.includes("sue")) {
-      return "Lawsuits involve complex procedures and timelines. The statute of limitations varies by case type and jurisdiction. Consider consulting with a licensed attorney for your specific situation."
-    } else if (input.includes("divorce") || input.includes("custody")) {
-      return "Family law matters like divorce and custody are governed by state laws. These proceedings typically involve property division, support determinations, and parenting arrangements."
-    } else {
-      return "Thank you for your question. To provide accurate legal information, I'd need more specific details about your situation. Please note that I can provide general legal information, but this doesn't constitute legal advice."
     }
   }
+  
 
+ 
+ 
   const handleDocumentUpload = () => {
     document.getElementById("document-upload").click()
   }
@@ -629,7 +656,7 @@ setExistence(false)
             <Scale className="logo-icon" />
             <span>LegalAI</span>
           </div>
-          <nav className="main-nav">
+          <nav className="main-nav landing-page-nav">
             <ul>
               <li>
                 <a
@@ -922,12 +949,181 @@ setExistence(false)
   }
 
   // Render the chat page
-  const renderChatPage = () => {
-    return (
+ 
+const renderChatPage = () => {
+  return (
+    <>
+      <div className="chat-page">
+        <Sidebar isOpen={isSidebarOpen} />
 
-      <ChatMessage/>
-    )
-  }
+        <div className="chat-container" ref={chatContainerRef}>
+          <header className="chat-header">
+            <button
+              className="sidebar-toggle"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            >
+              {isSidebarOpen ? <X /> : <Menu />}
+            </button>
+
+            <div className="logo">
+              <Scale className="logo-icon" />
+              <span>LegalAI</span>
+            </div>
+
+            <div className="header-actions">
+              <button
+                className="back-home-btn icon-only"
+                onClick={() => navigateTo("home")}
+                title="Home"
+              >
+                <Home size={18} />
+              </button>
+              <ThemeToggle />
+            </div>
+          </header>
+
+          <div className="messages-container">
+            {messages.map((message) => (
+              <ChatMessage
+                key={message.id}
+                content={message.content}
+                role={message.role}
+                timestamp={message.timestamp}
+              />
+            ))}
+
+            {isProcessing && (
+              <div className="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            )}
+
+            <div ref={messagesEndRef} />
+          </div>
+
+          <form className="chat-input-form" onSubmit={handleSubmit}>
+            <div className="chat-actions">
+              <button
+                type="button"
+                className="action-button upload-button"
+                onClick={handleDocumentUpload}
+                title="Upload Document"
+              >
+                <FileText size={18} />
+              </button>
+
+              <button
+                type="button"
+                className={`action-button speak-button ${isListening ? "listening" : ""}`}
+                onClick={toggleSpeechRecognition}
+                title="Speak"
+              >
+                <Mic size={18} />
+                {isListening && <span className="pulse-ring"></span>}
+              </button>
+
+              <button
+                type="button"
+                className="action-button template-button"
+                onClick={() => setShowTemplateModal(true)}
+                title="Get Document Template"
+              >
+                <FileText size={18} />
+                <Plus size={12} className="plus-icon" />
+              </button>
+            </div>
+
+            <div className="input-container">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Type your legal question here..."
+                disabled={isProcessing || isListening}
+              />
+              <button
+                type="submit"
+                className="send-button"
+                disabled={!input.trim() || isProcessing}
+              >
+                <Send />
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <input
+          type="file"
+          id="document-upload"
+          accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+          style={{ display: "none" }}
+          onChange={handleFileSelected}
+        />
+
+        {showTemplateModal && (
+          <div
+            className="template-modal-overlay"
+            onClick={() => setShowTemplateModal(false)}
+          >
+            <div
+              className="template-modal"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="template-modal-header">
+                <h3>Select Document Template</h3>
+                <button
+                  className="close-button"
+                  onClick={() => setShowTemplateModal(false)}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="template-modal-content">
+                <div className="template-categories">
+                  <button
+                    className={selectedCategory === "contracts" ? "active" : ""}
+                    onClick={() => setSelectedCategory("contracts")}
+                  >
+                    Contracts
+                  </button>
+                  <button
+                    className={selectedCategory === "legal" ? "active" : ""}
+                    onClick={() => setSelectedCategory("legal")}
+                  >
+                    Legal Forms
+                  </button>
+                  <button
+                    className={selectedCategory === "business" ? "active" : ""}
+                    onClick={() => setSelectedCategory("business")}
+                  >
+                    Business
+                  </button>
+                </div>
+
+                <div className="template-list">
+                  {getTemplatesByCategory(selectedCategory).map((template) => (
+                    <div
+                      key={template.name}
+                      className="template-item"
+                      onClick={() => selectTemplate(template)}
+                    >
+                      <FileText size={18} />
+                      <span>{template.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+};
+
 
   return (
     <div className="app">
