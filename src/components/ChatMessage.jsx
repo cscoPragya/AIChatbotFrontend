@@ -1,4 +1,5 @@
 import { User, Scale, FileText, Download } from "lucide-react"
+import ReactMarkdown from 'react-markdown';
 
 function ChatMessage({ content, role, timestamp, isTemplate, templateName }) {
   const formattedTime = timestamp.toLocaleTimeString([], {
@@ -21,7 +22,7 @@ function ChatMessage({ content, role, timestamp, isTemplate, templateName }) {
       </div>
       <div className="message-content">
         <div className="message-bubble">
-          {content}
+        <ReactMarkdown>{content}</ReactMarkdown>
 
           {isTemplate && (
             <div className="template-preview">

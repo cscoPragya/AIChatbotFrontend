@@ -1,6 +1,15 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
+import pdfMake from "pdfmake/build/pdfmake"
+import * as pdfFonts from "pdfmake/build/vfs_fonts"
+import * as pdfjsLib from 'pdfjs-dist';
+import mammoth from 'mammoth';
+
+
+import { extractTextFromPDF, extractTextFromDocx } from './extractUtils';
+pdfMake.vfs = pdfFonts.default
+
 import { Scale, Menu, Send, X, Home, FileText, Mic, Plus } from "lucide-react"
 // import {useNavigate} from "react-router-dom";
 import gsap from "gsap"
@@ -14,8 +23,25 @@ import FeaturesPage from "./components/FeaturesPage"
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SideBar2 from "./components/SideBar2"
+import { Routes, Route } from "react-router-dom";
+import OAuthSuccess from "./components/OAuthSuccess";
+import logoPath from "./assets/googleLogo.png"
+import EmailVerifiedPage from "./components/EmailVerifiedPage"
 
 function App() {
+
+
+//   <Routes>
+//   <Route path="/oauth-success" element={<OAuthSuccess />} />
+//   {/* other routes */}
+// </Routes>
+
+
+
+
+
+
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isListening, setIsListening] = useState(false)
   const [showTemplateModal, setShowTemplateModal] = useState(false)
@@ -34,6 +60,7 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
+  const inputRef=useRef();
 
   //state and handle submit function for login page
   const [loginFormData,setLoginFormData]=useState({
@@ -59,13 +86,13 @@ function App() {
 //ye kam rehne bala hai agar ham user ko refresh ya reload ke bad bhi login rakhn chate hai to, cause react aur backend me abhi filhal koi connection nahi hai jwt ko lekar, bas filal itna kar rahi hu ki agar page refresh ho bhi to bhi chat page par hi rahe agar uske pas jwt token hai, chats fetch aur load tab hongi jab chatting mechanism implement hoga.
 //now this would let user logged in even after the page refresh
 
-useEffect(()=>{
-    const userToken= localStorage.getItem("token")
-    console.log(userToken)
-    if(userToken!=null){
-      navigateTo("chat")
-    }
-},[])
+// useEffect(()=>{
+//     const userToken= localStorage.getItem("token")
+//     console.log(userToken)
+//     if(userToken!=null){
+//       navigateTo("chat")
+//     }
+// },[])
 
 
 
@@ -107,73 +134,65 @@ useEffect(()=>{
     }
   };
   
-var handleSignupFormSubmit= async(e)=>{
- 
-
-e.preventDefault()
-
-const response = await fetch("http://localhost:8080/api/public/signup", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(signupFormData)
-});
-
-let data;
-try {
-  data = await response.json();
-} catch (error) {
-  toast.error("Something went wrong!", {
-    position: "top-center",
-    autoClose: 3000,
-    hideProgressBar: false,
-    closeOnClick: true,
-    pauseOnHover: true,
-    draggable: true,
-    theme: "colored",
-  });
-
-
-
-  console.log("Response is not JSON:", error);
-  data = { message: "Invalid response from server" };
-}
-
-if (response.ok) {
-  console.log(data.message); //  JSON Message
-setPasswordError("")
-setEmailError("")
-setUsernameError("")
-setExistence(false)
-  toast.success("Signup Successful!", {
-    position: "top-center",
-    autoClose: 3000, // 3 sec me khatam ho jayega
-    hideProgressBar: false,
-    closeOnClick: true,
-    pauseOnHover: true,
-    draggable: true,
-    theme: "colored",
-  });
-
-
-  setSignupFormData({ username: "", email: "", password: "" });
-} else {
-  console.log("Signup failed!", data);
-  if((data.password)){
-    setPasswordError(data.password)
-  }
-   if((data.username)){
-    setUsernameError(data.userMessage)}
-  if((data.email)){
-    setEmailError(data.email)
-  }
-  if(data.message){
-    setExistence(data.message)
-  }
-
-}
-
+  var handleSignupFormSubmit = async (e) => {
+    e.preventDefault();
+    setIsSigningUp(true); // disable button
   
-}
+    const response = await fetch("http://localhost:8080/api/public/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(signupFormData)
+    });
+  
+    let data;
+    try {
+      data = await response.json();
+    } catch (error) {
+      toast.error("Something went wrong!", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+      });
+  
+      console.log("Response is not JSON:", error);
+      data = { message: "Invalid response from server" };
+    }
+  
+    if (response.ok) {
+      console.log(data.message);
+      setPasswordError("");
+      setEmailError("");
+      setUsernameError("");
+      setExistence(false);
+  
+      toast.success("Signup successful! Please verify your email.", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+      });
+  
+      setSignupFormData({ username: "", email: "", password: "" });
+    } else {
+      console.log("Signup failed!", data);
+  
+      if (data.password) setPasswordError(data.password);
+      if (data.username) setUsernameError(data.userMessage);
+      if (data.email) setEmailError(data.email);
+      if (data.message) setExistence(data.message);
+    }
+  
+    setIsSigningUp(false); // enable button
+  };
+  
+const [isSigningUp, setIsSigningUp] = useState(false);
 
   const messagesEndRef = useRef(null)
   const chatContainerRef = useRef(null)
@@ -408,6 +427,7 @@ setExistence(false)
   // Find the navigateTo function and modify it to reset the mobile menu state when navigating
   const navigateTo = (page) => {
     setCurrentPage(page)
+   
     // Reset mobile menu state when navigating
     setIsMobileMenuOpen(false)
 
@@ -439,6 +459,7 @@ setExistence(false)
     setMessages((prev) => [...prev, userMessage])
     setInput("")
     setIsProcessing(true)
+    inputRef.current?.focus()
   
     try {
       const res = await fetch("http://localhost:8080/api/chat/user1", {
@@ -478,58 +499,94 @@ setExistence(false)
   
 
  
- 
-  const handleDocumentUpload = () => {
-    document.getElementById("document-upload").click()
-  }
-
-  const handleFileSelected = (e) => {
+  const handleFileSelected = async (e) => {
     const file = e.target.files[0]
-    if (!file) return
+     if (!file) return
 
-    // Create a new message to show the uploaded document
+//     const estimatedTokens = Math.ceil(file.length / 4);
+//     
+// else if (estimatedTokens > 16000) {
+//   alert("Your file contains too much text. Please upload a smaller file.");
+// }
+
+   
+    
+  
+    // Show user message that document is uploaded
     const newMessage = {
       id: Date.now().toString(),
       content: `Uploaded document: ${file.name}`,
       role: "user",
       timestamp: new Date(),
     }
-
     setMessages((prev) => [...prev, newMessage])
-
-    // Simulate processing
     setIsProcessing(true)
+  
+    let extractedText = ""
+  
+    // Extract text based on file type
+    if (file.type === "application/pdf") {
+      extractedText = await extractTextFromPDF(file)
+    } else if (
+      file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ) {
+      extractedText = await extractTextFromDocx(file)
+const estimatedTokens = Math.ceil(extractedText.length / 4);
+if (estimatedTokens > 16000) {
+  alert("Your file contains too much text. Please upload a smaller file.");
+}
 
-    // Simulate AI response after processing the document
-    setTimeout(() => {
-      const aiResponse = {
+
+
+    } else {
+      const errorMessage = {
         id: (Date.now() + 1).toString(),
-        content: `I've analyzed the document "${file.name}". This appears to be a ${getDocumentType(file.name)}. Would you like me to summarize its key points or do you have specific questions about it?`,
+        content: "Only PDF or DOCX files are supported.",
         role: "assistant",
         timestamp: new Date(),
       }
-
-      setMessages((prev) => [...prev, aiResponse])
+      setMessages((prev) => [...prev, errorMessage])
       setIsProcessing(false)
-    }, 2000)
-
+      return
+    }
+  
+    // Send text to backend
+    try {
+      const res = await fetch('http://localhost:8080/api/chat/user1', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: extractedText }),
+      })
+  
+      const data = await res.text()
+      console.log("just to check"+data)
+  
+      const aiResponse = {
+        id: (Date.now() + 2).toString(),
+        content: data || "AI has processed the document and is ready to assist!",
+        role: "assistant",
+        timestamp: new Date(),
+      }
+      setMessages((prev) => [...prev, aiResponse])
+    } catch (error) {
+      console.error("Error sending to backend:", error)
+      const errorResponse = {
+        id: (Date.now() + 2).toString(),
+        content: "Something went wrong while processing the document.",
+        role: "assistant",
+        timestamp: new Date(),
+      }
+      setMessages((prev) => [...prev, errorResponse])
+    }
+  
+    setIsProcessing(false)
+  
     // Reset the file input
     e.target.value = null
   }
 
-  const getDocumentType = (filename) => {
-    const extension = filename.split(".").pop().toLowerCase()
-
-    if (["doc", "docx"].includes(extension)) {
-      return "Microsoft Word document"
-    } else if (extension === "pdf") {
-      return "PDF document"
-    } else if (["jpg", "jpeg", "png"].includes(extension)) {
-      return "image file"
-    } else {
-      return "text document"
-    }
-  }
 
   const toggleSpeechRecognition = () => {
     if (!isListening) {
@@ -588,7 +645,45 @@ setExistence(false)
     setIsListening(false)
   }
 
-  const getTemplatesByCategory = (category) => {
+  const generatePDFfromText = async (text, title) => {
+    // Replace placeholders with underlined blanks
+    const textWithPlaceholders = text.replace(/\[([^\]]+)\]/g, (match, p1) =>
+      `${p1.toUpperCase()}: __________________________`
+    );
+  
+    // Convert markdown-style bold (e.g., **TEXT**) to pdfMake bold format
+    const contentParts = [];
+    const boldRegex = /\*\*(.*?)\*\*/g;
+    let lastIndex = 0;
+    let match;
+  
+    while ((match = boldRegex.exec(textWithPlaceholders)) !== null) {
+      if (match.index > lastIndex) {
+        contentParts.push({ text: textWithPlaceholders.slice(lastIndex, match.index) });
+      }
+      contentParts.push({ text: match[1], bold: true });
+      lastIndex = boldRegex.lastIndex;
+    }
+  
+    if (lastIndex < textWithPlaceholders.length) {
+      contentParts.push({ text: textWithPlaceholders.slice(lastIndex) });
+    }
+  
+    const docDefinition = {
+      content: [
+        { text: title, style: 'header' },
+        { text: contentParts, style: 'body' }
+      ],
+      styles: {
+        header: { fontSize: 18, bold: true, margin: [0, 0, 0, 10] },
+        body: { fontSize: 12, lineHeight: 1.5 }
+      },
+      pageMargins: [40, 60, 40, 60]
+    };
+  
+    pdfMake.createPdf(docDefinition).download(`${title}.pdf`);
+  };
+    const getTemplatesByCategory = (category) => {
     const templates = {
       contracts: [
         { id: 1, name: "Employment Contract", type: "contract" },
@@ -613,38 +708,61 @@ setExistence(false)
     return templates[category] || []
   }
 
-  const selectTemplate = (template) => {
+  const selectTemplate = async (template) => {
     setSelectedTemplate(template)
     setShowTemplateModal(false)
-
-    // Create a new message to show the template request
+  
     const newMessage = {
       id: Date.now().toString(),
       content: `I need a template for: ${template.name}`,
       role: "user",
       timestamp: new Date(),
     }
-
+  
     setMessages((prev) => [...prev, newMessage])
-
-    // Simulate processing
     setIsProcessing(true)
-
-    // Simulate AI response with the template
-    setTimeout(() => {
+  
+    try {
+      const res = await fetch("http://localhost:8080/api/chat/user1", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: `Generate a detailed professional template for: ${template.name}`,
+        }),
+      })
+  
+      const text = await res.text()
+  
+      await generatePDFfromText(text, template.name)
+  
       const aiResponse = {
         id: (Date.now() + 1).toString(),
-        content: `Here's a template for "${template.name}". You can download it or I can help you customize it for your specific needs. Would you like me to explain any sections of this document?`,
+        content: `Hope you got your template "${template.name}".`,
         role: "assistant",
         isTemplate: true,
         templateName: template.name,
         timestamp: new Date(),
       }
-
+  
       setMessages((prev) => [...prev, aiResponse])
+    } catch (error) {
+      console.error("Error fetching template:", error)
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          content: "Sorry, I couldn’t fetch the template right now.",
+          role: "assistant",
+          timestamp: new Date(),
+        },
+      ])
+    } finally {
       setIsProcessing(false)
-    }, 1500)
+    }
   }
+  
 
   // Render the home page
   const renderHomePage = () => {
@@ -680,17 +798,10 @@ setExistence(false)
                   About
                 </a>
               </li>
-              <li>
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    navigateTo("home")
-                  }}
-                >
-                  Pricing
-                </a>
-              </li>
+             <li>
+  {/* //yha add krna blog ke liye href*/}
+</li>
+
             </ul>
           </nav>
           {/* Mobile menu button */}
@@ -815,14 +926,10 @@ setExistence(false)
 
   // Render the login page
   const renderLoginPage = () => {
-
-
-
-//     //logic to send the data to dababase
-// const handleSubmit=(e)=>{
-//   console.log(e);
-// }
-
+    const handleGoogleLogin = () => {
+      window.location.href = "http://localhost:8080/oauth2/authorization/google";
+    };
+  
     return (
       <div className="login-container">
         <div className="login-card">
@@ -836,32 +943,70 @@ setExistence(false)
               <span>LegalAI</span>
             </div>
           </div>
-
+  
           <h2>Welcome Back</h2>
           <p className="login-subtitle">Sign in to your account</p>
-
-          <form className="login-form" onSubmit={(e)=>{handleLoginSubmit(e)}}>
+  
+          <form className="login-form" onSubmit={(e) => handleLoginSubmit(e)}>
             <div className="form-group">
               <label htmlFor="email">Email</label>
-              <input type="email" id="email" name="email" value={loginFormData.email} placeholder="your@email.com" onChange={(e)=>{setLoginFormData({...loginFormData,[e.target.name]:e.target.value})}} />
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={loginFormData.email}
+                placeholder="your@email.com"
+                onChange={(e) =>
+                  setLoginFormData({
+                    ...loginFormData,
+                    [e.target.name]: e.target.value,
+                  })
+                }
+              />
             </div>
-
+  
             <div className="form-group">
               <label htmlFor="password">Password</label>
-              <input type="password" id="password" placeholder="••••••••" name="password" value={loginFormData.password} onChange={(e)=>{
-                setLoginFormData({...loginFormData,[e.target.name]:e.target.value})
-
-              }} />
+              <input
+                type="password"
+                id="password"
+                placeholder="••••••••"
+                name="password"
+                value={loginFormData.password}
+                onChange={(e) =>
+                  setLoginFormData({
+                    ...loginFormData,
+                    [e.target.name]: e.target.value,
+                  })
+                }
+              />
               <div className="forgot-password">
                 <a href="#">Forgot password?</a>
               </div>
             </div>
+  
             {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+  
             <button type="submit" className="btn btn-primary login-btn">
               Sign In
             </button>
           </form>
-
+  
+          {/* ---- OR Divider (optional) ---- */}
+          <div className="divider">
+            <span>OR</span>
+          </div>
+  
+          {/* ---- Google Login Button ---- */}
+          <button onClick={handleGoogleLogin} className="btn google-login-btn">
+            <img
+              src={logoPath} // make sure this path is correct
+              alt="Google logo"
+              style={{ width: "30px", marginRight: "10px" }}
+            />
+            Continue with Google
+          </button>
+  
           <div className="login-footer">
             <p>
               Don't have an account?{" "}
@@ -878,8 +1023,9 @@ setExistence(false)
           </div>
         </div>
       </div>
-    )
-  }
+    );
+  };
+  
 
   // Add a renderSignupPage function after the renderLoginPage function
   const renderSignupPage = () => {
@@ -924,9 +1070,15 @@ setExistence(false)
               onChange={(e)=>{setSignupFormData({...signupFormData,[e.target.name]:e.target.value})}}/>
             </div> */}
 {userAlreadyExists && <p style={{color:"red"}}>{userAlreadyExists}</p>}
-            <button type="submit" className="btn btn-primary login-btn" onClick={handleSignupFormSubmit}>
-              Create Account
-            </button>
+<button
+  type="submit"
+  className="btn btn-primary login-btn"
+  onClick={handleSignupFormSubmit}
+  disabled={isSigningUp}
+>
+  {isSigningUp ? "Creating..." : "Create Account"}
+</button>
+
           </form>
 
           <div className="login-footer">
@@ -1008,11 +1160,20 @@ const renderChatPage = () => {
               <button
                 type="button"
                 className="action-button upload-button"
-                onClick={handleDocumentUpload}
-                title="Upload Document"
+                // onClick={handleDocumentUpload}
+                onClick={() => document.getElementById("document-upload").click()}
+                title="Upload text-only PDF/DOC (Max 300 KB or ~10,000 words)"
               >
                 <FileText size={18} />
               </button>
+
+              <input
+      type="file"
+      id="document-upload"
+      accept=".pdf,.docx"
+      style={{ display: 'none' }}
+      onChange={handleFileSelected}
+    />
 
               <button
                 type="button"
@@ -1035,7 +1196,7 @@ const renderChatPage = () => {
               </button>
             </div>
 
-            <div className="input-container">
+            <div className="input-container" ref={inputRef}>
               <input
                 type="text"
                 value={input}
@@ -1126,14 +1287,28 @@ const renderChatPage = () => {
 
 
   return (
-    <div className="app">
-      {currentPage === "home" && renderHomePage()}
-      {currentPage === "login" && renderLoginPage()}
-      {currentPage === "signup" && renderSignupPage()}
-      {currentPage === "chat" && renderChatPage()}
-      {currentPage === "about" && <AboutPage navigateTo={navigateTo} />}
-      {currentPage === "features" && <FeaturesPage navigateTo={navigateTo} />}
-    </div>
+    <>
+    <Routes>
+    {/* ✅ This route is special — handled by React Router */}
+    <Route path="/oauth-success" element={<OAuthSuccess  navigateTo={navigateTo}/>} />
+
+
+    <Route path="/verify-success" element={<EmailVerifiedPage navigateTo={navigateTo} />} />
+
+
+    </Routes>
+ 
+   
+        <div className="app">
+          {currentPage === "home" && renderHomePage()}
+          {currentPage === "login" && renderLoginPage()}
+          {currentPage === "signup" && renderSignupPage()}
+          {currentPage === "chat" && renderChatPage()}
+          {currentPage === "about" && <AboutPage navigateTo={navigateTo} />}
+          {currentPage === "features" && <FeaturesPage navigateTo={navigateTo} />}
+        </div>
+    
+        </>
   )
 }
 
