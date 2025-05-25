@@ -106,10 +106,10 @@ function FeaturesPage({ navigateTo }) {
                 href="#"
                 onClick={(e) => {
                   e.preventDefault()
-                  navigateTo("home")
+                  navigateTo("blog")
                 }}
               >
-                Pricing
+                Blog
               </a>
             </li>
           </ul>
