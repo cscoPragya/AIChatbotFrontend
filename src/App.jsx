@@ -27,6 +27,8 @@ import { Routes, Route } from "react-router-dom";
 import OAuthSuccess from "./components/OAuthSuccess";
 import logoPath from "./assets/googleLogo.png"
 import EmailVerifiedPage from "./components/EmailVerifiedPage"
+import BlogPage from "./components/BlogPage"
+import BlogDetailPage from "./components/BlogDetailPage"
 
 function App() {
 
@@ -753,7 +755,7 @@ if (estimatedTokens > 16000) {
         ...prev,
         {
           id: Date.now().toString(),
-          content: "Sorry, I couldn’t fetch the template right now.",
+          content: "Sorry, I couldn't fetch the template right now.",
           role: "assistant",
           timestamp: new Date(),
         },
@@ -798,10 +800,17 @@ if (estimatedTokens > 16000) {
                   About
                 </a>
               </li>
-             <li>
-  {/* //yha add krna blog ke liye href*/}
-</li>
-
+              <li>
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    navigateTo("blog")
+                  }}
+                >
+                  Blog
+                </a>
+              </li>
             </ul>
           </nav>
           {/* Mobile menu button */}
@@ -850,10 +859,10 @@ if (estimatedTokens > 16000) {
                   href="#"
                   onClick={(e) => {
                     e.preventDefault()
-                    navigateTo("home")
+                    navigateTo("blog")
                   }}
                 >
-                  Pricing
+                  Blog
                 </a>
               </li>
               <li className="mobile-menu-divider"></li>
@@ -1306,6 +1315,8 @@ const renderChatPage = () => {
           {currentPage === "chat" && renderChatPage()}
           {currentPage === "about" && <AboutPage navigateTo={navigateTo} />}
           {currentPage === "features" && <FeaturesPage navigateTo={navigateTo} />}
+          {currentPage === "blog" && <BlogPage navigateTo={navigateTo} />}
+          {currentPage.startsWith("blog-detail-") && <BlogDetailPage navigateTo={navigateTo} postId={currentPage.replace("blog-detail-", "")} />}
         </div>
     
         </>
