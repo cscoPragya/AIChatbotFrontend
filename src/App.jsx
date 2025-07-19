@@ -447,58 +447,60 @@ const [isSigningUp, setIsSigningUp] = useState(false);
   }
 
   //Actually getting responses from backend
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (!input.trim() || isProcessing) return
-  
-    const userMessage = {
-      id: Date.now().toString(),
-      content: input,
-      role: "user",
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!input.trim() || isProcessing) return;
+
+  const userMessage = {
+    id: Date.now().toString(),
+    content: input,
+    role: "user",
+    timestamp: new Date(),
+  };
+
+  setMessages((prev) => [...prev, userMessage]);
+  setInput("");
+  setIsProcessing(true);
+
+  try {
+    const res = await fetch("http://localhost:8080/api/chat/user1", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message: input }),
+    });
+
+    const data = await res.text();
+    console.log(data);
+
+    const aiResponse = {
+      id: (Date.now() + 1).toString(),
+      content: data,
+      role: "assistant",
       timestamp: new Date(),
-    }
-  
-    setMessages((prev) => [...prev, userMessage])
-    setInput("")
-    setIsProcessing(true)
-    inputRef.current?.focus()
-  
-    try {
-      const res = await fetch("http://localhost:8080/api/chat/user1", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message: input }), // sending input to backend
-      })
-  
-      const data = await res.text()
-  console.log(data)
-  
-      const aiResponse = {
-        id: (Date.now() + 1).toString(),
-        content: data, // assuming backend sends { response: "..." }
+    };
+
+    setMessages((prev) => [...prev, aiResponse]);
+  } catch (error) {
+    console.error("Error while fetching AI response:", error);
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now().toString(),
+        content: "Sorry, I couldn't fetch a response right now.",
         role: "assistant",
         timestamp: new Date(),
-      }
-  
-      setMessages((prev) => [...prev, aiResponse])
-    } catch (error) {
-      console.error("Error while fetching AI response:", error)
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          content: "Sorry, I couldn't fetch a response right now.",
-          role: "assistant",
-          timestamp: new Date(),
-        },
-      ])
-    } finally {
-      setIsProcessing(false)
-    }
+      },
+    ]);
+  } finally {
+    setIsProcessing(false);
+    setTimeout(() => {
+      inputRef.current?.focus(); // ✅ ab har bar sahi se cursor aa jayega
+    }, 0); // small delay to ensure state updates first
   }
-  
+};
+
 
  
   const handleFileSelected = async (e) => {
@@ -588,6 +590,86 @@ if (estimatedTokens > 16000) {
     // Reset the file input
     e.target.value = null
   }
+
+
+// const handleFileSelected = async (e) => {
+//   const file = e.target.files[0];
+//   if (!file) return;
+
+//   const newMessage = {
+//     id: Date.now().toString(),
+//     content: `Uploaded document: ${file.name}`,
+//     role: "user",
+//     timestamp: new Date(),
+//   };
+//   setMessages((prev) => [...prev, newMessage]);
+//   setIsProcessing(true);
+
+//   let extractedText = "";
+
+//   // Extract text based on file type
+//   if (file.type === "application/pdf") {
+//     extractedText = await extractTextFromPDF(file);
+//   } else if (
+//     file.type ===
+//     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+//   ) {
+//     extractedText = await extractTextFromDocx(file);
+//   } else {
+//     setMessages((prev) => [
+//       ...prev,
+//       {
+//         id: (Date.now() + 1).toString(),
+//         content: "Only PDF or DOCX files are supported.",
+//         role: "assistant",
+//         timestamp: new Date(),
+//       },
+//     ]);
+//     setIsProcessing(false);
+//     return;
+//   }
+
+//   // ✅ Token limit check
+//   const estimatedTokens = Math.ceil(extractedText.length / 4);
+//   if (estimatedTokens > 16000) {
+//     alert("Your file contains too much text. Please upload a smaller file.");
+//     setIsProcessing(false);
+//     return;
+//   }
+
+//   // ✅ Extra query merge (if user typed something before uploading)
+//   const combinedPrompt = input.trim()
+//     ? `Document Content:\n${extractedText}\n\nUser Query:\n${input}`
+//     : extractedText;
+
+//   try {
+//     const res = await fetch("http://localhost:8080/api/chat/user1", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({ message: combinedPrompt }),
+//     });
+
+//     const data = await res.text();
+//     console.log("AI Response:", data);
+
+//     const aiResponse = {
+//       id: (Date.now() + 2).toString(),
+//       content: data,
+//       role: "assistant",
+//       timestamp: new Date(),
+//     };
+//     setMessages((prev) => [...prev, aiResponse]);
+//   } catch (error) {
+//     console.error("Error sending to backend:", error);
+//   }
+
+//   setIsProcessing(false);
+//   setInput(""); // ✅ clear input
+//   inputRef.current?.focus(); // ✅ cursor back
+//   e.target.value = null;
+// };
 
 
   const toggleSpeechRecognition = () => {
@@ -1171,7 +1253,7 @@ const renderChatPage = () => {
                 className="action-button upload-button"
                 // onClick={handleDocumentUpload}
                 onClick={() => document.getElementById("document-upload").click()}
-                title="Upload text-only PDF/DOC (Max 300 KB or ~10,000 words)"
+                title="Upload text-only PDF/DOC (Max 5MB or ~10,000 words)"
               >
                 <FileText size={18} />
               </button>

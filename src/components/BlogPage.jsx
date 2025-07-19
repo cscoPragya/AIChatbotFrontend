@@ -202,26 +202,29 @@ const BlogPage = ({ navigateTo }) => {
     });
   }, [search]);
 
-  const handleNewsletterSubmit = async (e) => {
-    e.preventDefault();
-    setNewsletterMsg("");
-    try {
-      // Replace with your real endpoint
-      const res = await fetch("/api/newsletter", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
-      });
-      if (res.ok) {
-        setNewsletterMsg("Thank you for subscribing!");
-        setEmail("");
-      } else {
-        setNewsletterMsg("Subscription failed. Try again.");
-      }
-    } catch {
+
+  // have changed the endpoints and some other stuff
+const handleNewsletterSubmit = async (e) => {
+  e.preventDefault();
+  setNewsletterMsg("");
+  try {
+    const res = await fetch("http://localhost:8080/api/newsletter/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
+    if (res.ok) {
+      const message = await res.text(); // backend se message receive karo
+      setNewsletterMsg(message || "Thank you for subscribing!");
+      setEmail("");
+    } else {
       setNewsletterMsg("Subscription failed. Try again.");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    setNewsletterMsg("Subscription failed. Try again.");
+  }
+};
 
   return (
     <div className="blog-page">
